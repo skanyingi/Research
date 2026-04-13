@@ -104,7 +104,7 @@ export default function App() {
   return (
     <div className="flex h-screen bg-[#FDFDFD] text-slate-900 font-sans overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-slate-200 bg-slate-50/50 flex flex-col">
+      <aside className="w-72 border-r border-slate-200 bg-slate-50/50 flex flex-col min-h-0">
         <div className="p-4 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
             <Sparkles className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function App() {
           </Button>
         </div>
 
-        <ScrollArea className="flex-1 px-2">
+        <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="space-y-1">
             <div className="px-2 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
               <History className="w-3 h-3" />
@@ -172,7 +172,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative bg-white">
+      <main className="flex-1 flex flex-col min-h-0 relative bg-white">
         <header className="h-16 border-b border-slate-100 flex items-center justify-between px-8 bg-white/80 backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-4">
             {activeId && (
@@ -197,7 +197,7 @@ export default function App() {
           </div>
         </header>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="max-w-4xl mx-auto px-8 py-12">
             {!currentResult && !isResearching ? (
               <motion.div 
