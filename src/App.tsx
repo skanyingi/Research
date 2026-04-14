@@ -313,7 +313,15 @@ export default function App() {
                     )}
 
                     {/* Report Content */}
-                    <article className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-600 prose-p:leading-relaxed prose-li:text-slate-600 prose-strong:text-indigo-700 prose-a:text-indigo-600 hover:prose-a:text-indigo-800">
+                    <article className="prose prose-slate max-w-none 
+                      prose-headings:text-slate-900 prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4
+                      prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+                      prose-p:text-slate-600 prose-p:leading-relaxed prose-p:mb-4
+                      prose-li:text-slate-600 prose-li:mb-2
+                      prose-strong:text-indigo-700 prose-strong:font-bold
+                      prose-a:text-indigo-600 hover:prose-a:text-indigo-800
+                      prose-ul:list-disc prose-ul:pl-6
+                      prose-ol:list-decimal prose-ol:pl-6">
                       <ReactMarkdown>{currentResult.text}</ReactMarkdown>
                     </article>
 
