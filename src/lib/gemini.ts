@@ -1,5 +1,5 @@
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "mistralai/mistral-small-3.2-24b-instruct";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
 export async function performResearch(query: string, onProgress: (step: string) => void) {
   try {
@@ -18,28 +18,44 @@ Please follow these steps:
 
 Return the final answer in markdown format.`;
 
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY || ""}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.APP_URL || "http://localhost:3000",
-        "X-Title": "InsightFlow"
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert research agent. Your goal is to provide accurate, well-structured, and comprehensive reports from reliable information. Always cite your sources and use markdown formatting."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ]
-      })
-    });
+    let response: Response;
+    
+    if (API_BASE_URL) {
+      response = await fetch(`${API_BASE_URL}/api/research`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          query,
+          apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
+          model: import.meta.env.VITE_OPENROUTER_MODEL
+        })
+      });
+    } else {
+      response = await fetch(OPENROUTER_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY || ""}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": import.meta.env.VITE_APP_URL || "http://localhost:3000",
+          "X-Title": "InsightFlow"
+        },
+        body: JSON.stringify({
+          model: import.meta.env.VITE_OPENROUTER_MODEL || "mistralai/mistral-small-3.2-24b-instruct",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert research agent. Your goal is to provide accurate, well-structured, and comprehensive reports from reliable information. Always cite your sources and use markdown formatting."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ]
+        })
+      });
+    }
 
     if (!response.ok) {
       const details = await response.text();
