@@ -1,41 +1,34 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+export const config = {
+  runtime: 'edge',
+};
+
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-export async function handler(event) {
+export default async function handler(req: Request) {
   // CORS Headers
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json",
   };
 
   // Handle Preflight OPTIONS request
-  if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 204,
-      headers,
-      body: "",
-    };
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers });
   }
 
-  if (event.httpMethod !== "POST") {
-    return { 
-      statusCode: 405, 
-      headers,
-      body: "Method Not Allowed" 
-    };
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method Not Allowed" }), { status: 405, headers });
   }
 
   try {
-    const { query, apiKey, model } = JSON.parse(event.body || "{}");
+    const { query, apiKey, model } = await req.json();
 
     if (!query || !apiKey) {
-      return { 
-        statusCode: 400, 
-        headers,
-        body: JSON.stringify({ error: "Missing query or API key" }) 
-      };
+      return new Response(JSON.stringify({ error: "Missing query or API key" }), { status: 400, headers });
     }
 
     // Check if it's a Gemini key (usually starts with AIza)
@@ -45,7 +38,7 @@ export async function handler(event) {
       const genAI = new GoogleGenerativeAI(apiKey);
       const geminiModel = genAI.getGenerativeModel({ 
         model: "gemini-1.5-flash",
-        tools: [{ googleSearchRetrieval: {} }]
+        tools: [{ googleSearchRetrieval: {} }] as any
       });
       
       const prompt = `Conduct comprehensive research on: ${query}
@@ -63,15 +56,11 @@ Return the final answer in markdown format.`;
       const text = response.text();
       const groundingMetadata = (response as any).candidates?.[0]?.groundingMetadata || null;
 
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          text,
-          sources: groundingMetadata,
-          groundingMetadata
-        })
-      };
+      return new Response(JSON.stringify({
+        text,
+        sources: groundingMetadata,
+        groundingMetadata
+      }), { status: 200, headers });
     } else {
       // Fallback to OpenRouter
       const response = await fetch(OPENROUTER_API_URL, {
@@ -79,7 +68,7 @@ Return the final answer in markdown format.`;
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://researc.netlify.app",
+          "HTTP-Referer": "https://research-agent.vercel.app",
           "X-Title": "InsightFlow"
         },
         body: JSON.stringify({
@@ -107,29 +96,21 @@ Return the final answer in markdown format.`
 
       if (!response.ok) {
         const details = await response.text();
-        return { statusCode: response.status, headers, body: details };
+        return new Response(details, { status: response.status, headers });
       }
 
       const data = await response.json();
       const text = data?.choices?.[0]?.message?.content || "";
       const groundingMetadata = data?.choices?.[0]?.message?.groundingMetadata || null;
 
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          text,
-          sources: groundingMetadata,
-          groundingMetadata
-        })
-      };
+      return new Response(JSON.stringify({
+        text,
+        sources: groundingMetadata,
+        groundingMetadata
+      }), { status: 200, headers });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Research error:", error);
-    return { 
-      statusCode: 500, 
-      headers,
-      body: JSON.stringify({ error: "Research failed" }) 
-    };
+    return new Response(JSON.stringify({ error: "Research failed", details: error.message }), { status: 500, headers });
   }
 }
