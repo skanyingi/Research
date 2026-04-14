@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
