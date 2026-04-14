@@ -13,6 +13,7 @@ export default defineConfig(({mode}) => {
       'import.meta.env.VITE_OPENROUTER_MODEL': JSON.stringify(env.OPENROUTER_MODEL || env.VITE_OPENROUTER_MODEL || 'mistralai/mistral-small-3.2-24b-instruct'),
       'import.meta.env.VITE_APP_URL': JSON.stringify(env.APP_URL || env.VITE_APP_URL || 'https://researc.netlify.app'),
       'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.API_BASE_URL || env.VITE_API_BASE_URL || ''),
+      'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || ''),
     },
     resolve: {
       alias: {
